@@ -1,0 +1,22 @@
+{
+  "name": "mcp-keyring-injector",
+  "version": "1.0.0",
+  "description": "Securely inject MCP API credentials from system keyring into Claude Code configuration at session start",
+  "author": {
+    "name": "Sankalp Gilda, Ph.D.",
+    "email": "sankalp.gilda@gmail.com",
+    "url": "https://github.com/astrogilda"
+  },
+  "repository": "https://github.com/astrogilda/mcp-keyring-injector",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "credentials",
+    "mcp",
+    "keyring",
+    "secrets",
+    "authentication",
+    "api-keys"
+  ],
+  "hooks": "./hooks/hooks.json"
+}
