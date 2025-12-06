@@ -27,7 +27,7 @@ This plugin solves the problem by:
 - **Cross-platform**: Works on Linux (GNOME Keyring), macOS (Keychain), Windows (Credential Manager)
 - **Automatic**: Runs on every Claude Code session start
 - **Flexible**: Configure multiple MCP services from one file
-- **Zero overhead**: Adds <100ms to session startup
+- **Minimal overhead**: Negligible performance impact on session startup
 
 ## Installation
 
