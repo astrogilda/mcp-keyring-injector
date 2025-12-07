@@ -1,5 +1,5 @@
 {
-  "description": "Inject MCP API credentials from system keyring at session start",
+  "description": "Inject MCP API credentials at session start, remove at session end",
   "hooks": {
     "SessionStart": [
       {
@@ -7,6 +7,17 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/inject-credentials.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/remove-credentials.py",
             "timeout": 5
           }
         ]

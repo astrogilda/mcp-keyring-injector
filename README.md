@@ -17,9 +17,11 @@ MCP servers in Claude Code require API keys in their environment configuration (
 
 This plugin solves the problem by:
 1. Storing API keys in your **system keyring** (encrypted)
-2. **Dynamically injecting** them into `~/.claude.json` when Claude Code starts
-3. **Automatically removing** them when the session ends
+2. **Dynamically injecting** them into `~/.claude.json` when Claude Code starts (SessionStart hook)
+3. **Automatically removing** them when the session ends (SessionEnd hook)
 4. Working **cross-platform** (Linux, macOS, Windows)
+
+Keys exist in config files **only while Claude Code is running** - true session-scoped security!
 
 ## Features
 
@@ -94,6 +96,41 @@ MCP credentials - Injected: GitHub API Token
 
 Check your GitHub MCP tools are now available!
 
+## Upgrading from v1.0.0
+
+If you're upgrading from v1.0.0, here's what changed in v1.1.0:
+
+### What's New
+- **SessionEnd cleanup hook**: Credentials are now automatically removed when Claude Code exits
+- **Session-scoped security**: Keys only exist in `~/.claude.json` while Claude is running
+- **Enhanced status messages**: Better feedback on cleanup operations
+
+### Migration Steps
+
+1. **Update the plugin** (automatic if using plugin marketplace):
+   ```bash
+   /plugin update mcp-keyring-injector
+   ```
+
+2. **One-time cleanup** - Remove old credentials from config (they won't auto-cleanup):
+   ```bash
+   # Backup first
+   cp ~/.claude.json ~/.claude.json.backup
+
+   # Remove credentials manually from ~/.claude.json env sections
+   # Or let them be removed on next session start
+   ```
+
+3. **No config changes needed** - Your `mcp-credentials.json` format remains the same
+
+### Breaking Changes
+- **None!** This is a fully backwards-compatible security enhancement
+
+### What Happens After Upgrade
+- Next session: Credentials injected at start (as before)
+- **New behavior**: Credentials automatically removed at session end
+- Keys always remain safe in your system keyring
+
 ## Configuration
 
 ### Config File Format
@@ -144,32 +181,49 @@ Check your GitHub MCP tools are now available!
 
 ```
 Claude Code Session Start
-         ↓
+         |
 SessionStart hook triggered
-         ↓
+         |
 Read ~/.claude/config/mcp-credentials.json
-         ↓
+         |
 For each service:
-  ├─ Retrieve API key from system keyring
-  ├─ Inject into ~/.claude.json MCP server env
-  └─ Report success/failure
-         ↓
+  |-- Retrieve API key from system keyring
+  |-- Inject into ~/.claude.json MCP server env
+  +-- Report success/failure
+         |
 Claude Code continues startup
-         ↓
+         |
 MCP servers start with injected credentials
+         |
+[... Claude Code session runs ...]
+         |
+Claude Code Session End
+         |
+SessionEnd hook triggered
+         |
+Read ~/.claude/config/mcp-credentials.json
+         |
+For each service:
+  |-- Remove API key from ~/.claude.json MCP server env
+  +-- Report cleanup status
+         |
+Keys removed from config
+         |
+Keys remain only in system keyring
 ```
 
 ## Security Considerations
 
 ### What This Protects Against
-- ✅ API keys in plaintext config files
-- ✅ Accidental git commits of secrets
-- ✅ Unauthorized file access (keyring requires user authentication)
+- [YES] API keys in plaintext config files
+- [YES] Accidental git commits of secrets
+- [YES] Unauthorized file access (keyring requires user authentication)
+- [YES] **Session-scoped security (v1.1.0+)**: Keys automatically removed when Claude Code exits
 
 ### What This Doesn't Protect Against
-- ❌ Malicious code with your user permissions (can access keyring)
-- ❌ Physical access to unlocked machine
-- ❌ Memory dumps while Claude Code is running
+- [NO] Malicious code with your user permissions (can access keyring)
+- [NO] Physical access to unlocked machine
+- [NO] Memory dumps while Claude Code is running
 
 ### Best Practices
 1. Use unique API keys per machine
@@ -222,17 +276,20 @@ Look for errors about missing API keys.
 
 ### Project Structure
 ```
-claude-mcp-credentials/
-├── .claude-plugin/
-│   └── plugin.json          # Plugin metadata
-├── hooks/
-│   └── inject-credentials.py  # SessionStart hook
-├── examples/
-│   └── mcp-credentials.json   # Example config
-├── docs/
-│   └── SECURITY.md            # Security considerations
-├── README.md
-└── LICENSE
+mcp-keyring-injector/
+.claude-plugin/
+  +-- plugin.json             # Plugin metadata
+hooks/
+  +-- hooks.json              # Hook configuration
+  +-- inject-credentials.py  # SessionStart hook
+  +-- remove-credentials.py  # SessionEnd hook (v1.1.0+)
+examples/
+  +-- mcp-credentials.json    # Example config
+docs/
+  +-- SECURITY.md             # Security considerations
+CHANGELOG.md                # Version history
+README.md
+LICENSE
 ```
 
 ### Testing Locally

@@ -16,6 +16,11 @@
    - Risk: Sharing ~/.claude.json exposes keys
    - Mitigation: Keys injected dynamically, not stored permanently
 
+4. **Session-scoped credential injection (v1.1.0+)**
+   - Risk: Keys permanently in ~/.claude.json between sessions
+   - Mitigation: Automatically removed when Claude Code exits
+   - Window: Keys only accessible while you're actively using Claude
+
 ### What This Plugin Does NOT Protect Against
 
 1. **Malicious code with your permissions**
@@ -57,11 +62,34 @@
 
 | Approach | Security | Convenience | Risk |
 |----------|----------|-------------|------|
-| **Plaintext in ~/.claude.json** | ❌ Very Low | ✅ High | Keys on disk forever |
-| **Environment variables** | ⚠️ Low | ⚠️ Medium | Keys in shell history, process list |
-| **.env files** | ⚠️ Low | ✅ High | Easy to commit accidentally |
-| **This plugin (Keyring)** | ✅ High | ✅ High | Requires unlocked keyring |
-| **Hardware tokens (YubiKey)** | ✅ Very High | ❌ Low | Need hardware, not all APIs support |
+| **Plaintext in ~/.claude.json** | [NO] Very Low | [YES] High | Keys on disk forever |
+| **Environment variables** | [WARN] Low | [WARN] Medium | Keys in shell history, process list |
+| **.env files** | [WARN] Low | [YES] High | Easy to commit accidentally |
+| **This plugin (Keyring)** | [YES] High | [YES] High | Keys in config ONLY during active session |
+| **Hardware tokens (YubiKey)** | [YES] Very High | [NO] Low | Need hardware, not all APIs support |
+
+## Version Comparison
+
+Understanding the security improvements across versions:
+
+| Version | SessionStart | SessionEnd | Security Model | Risk Profile |
+|---------|--------------|------------|----------------|--------------|
+| **v1.0.0** | [YES] Inject keys | [NO] Manual cleanup | Keys persist in config | Medium - keys left on disk between sessions |
+| **v1.1.0** | [YES] Inject keys | [YES] Auto-remove | Session-scoped only | Low - keys only in config while Claude running |
+
+### Security Impact of v1.1.0 Upgrade
+
+**Before (v1.0.0):**
+- Keys injected at session start
+- Keys remained in `~/.claude.json` after Claude Code exited
+- Risk window: Indefinite (until manual cleanup)
+
+**After (v1.1.0):**
+- Keys injected at session start
+- Keys automatically removed at session end
+- Risk window: Only while Claude Code is actively running
+
+**Recommendation:** All users should upgrade to v1.1.0 for improved session-scoped security.
 
 ## Keyring Security by Platform
 

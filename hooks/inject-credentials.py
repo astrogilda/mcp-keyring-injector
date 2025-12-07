@@ -15,7 +15,7 @@ SessionStart hooks. API keys must be in ~/.claude.json env sections, but storing
 them there is a security risk. This hook solves the problem by:
   1. Reading API keys from system keyring (encrypted storage)
   2. Dynamically injecting them into ~/.claude.json at session start
-  3. Removing them when the session ends (handled by Claude Code)
+  3. Removing them when the session ends (via SessionEnd hook)
 
 Usage:
 ------
