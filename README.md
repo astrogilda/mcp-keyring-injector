@@ -1,6 +1,6 @@
 # MCP Keyring Injector
 
-Securely inject MCP server API credentials from your system keyring into Claude Code configuration at session start. No more API keys in config files!
+Session-scoped credential management for Claude Code MCP servers. API keys are automatically injected from your OS keyring at startup and removed at exit - credentials exist in config files only while Claude Code runs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
